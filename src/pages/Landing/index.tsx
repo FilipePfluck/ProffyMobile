@@ -22,7 +22,10 @@ const Landing:React.FC = ()=>{
                 </S.TitleBold>
             </S.Title>
             <S.ButtonsContainer>
-                <S.Button color="#9871f5">
+                <S.Button 
+                    color="#9871f5"
+                    onPress={()=>{navigation.navigate('Study')}}
+                >
                     <Image source={study} />
                     <S.TextButton>Estudar</S.TextButton>
                 </S.Button>
