@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {ReactNode} from 'react'
 import { Image } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 
@@ -11,9 +11,10 @@ import * as S from './styles'
 
 interface PageHeaderProps {
     title: string
+    headerRight?: ReactNode
 }
 
-const Header:React.FC<PageHeaderProps> = ({title}) => {
+const Header:React.FC<PageHeaderProps> = ({title, children, headerRight}) => {
     const {navigate} = useNavigation()
     
     return(
@@ -24,7 +25,12 @@ const Header:React.FC<PageHeaderProps> = ({title}) => {
                 </S.Button>
                 <Image source={logo}/>
             </S.TopBar>
-            <S.Title>{title}</S.Title>
+            <S.Header>
+                <S.Title>{title}</S.Title>
+                {headerRight}
+            </S.Header>
+                
+            {children}
         </S.Container>
     )
 }

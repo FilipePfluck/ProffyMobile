@@ -16,6 +16,12 @@ export const Button = styled.TouchableOpacity`
 
 `
 
+export const Header = styled.View`
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+`
+
 export const Title = styled.Text`
     font-weight: 700;
     color: #fff;
