@@ -1,33 +1,27 @@
 import React, { useState, useCallback, useEffect } from 'react'
 import { Linking } from 'react-native'
 import { BorderlessButton } from 'react-native-gesture-handler'
-import { useFocusEffect } from "@react-navigation/native"
+import { useIsFocused } from "@react-navigation/native"
 
 import AsyncStorage from '@react-native-community/async-storage'
 
 import api from '../../services/api'
+
+import { ScheduleItem, Teacher } from '../../interfaces'
 
 import Header from '../../components/header'
 import TeacherItem from '../../components/TeacherItem'
 
 import * as S from './styles'
 
-interface Teacher{
-    avatar: string
-    bio: string
-    cost: number
-    id: number
-    name: string
-    subject: string
-    user_id?: number
-    whatsapp: string
-}
-
 const TeacherList:React.FC = () => {
+    const isFocused = useIsFocused()
+
     const [isFilterVisible, setIsFilterVisible] = useState(false)
 
     const [favorites, setFavorites] = useState<number[]>([])
     const [teachers, setTeachers] = useState([])
+    const [filteredTeachers, setFIlteredTeachers] = useState([])
 
     const [subject, setSubject] = useState('')
     const [week_day, setWeekDay] = useState('')
@@ -48,10 +42,6 @@ const TeacherList:React.FC = () => {
         })
     }
 
-    useFocusEffect(() => {
-        loadFavorites()
-    })
-
     const handleFiltersSubmit = useCallback(async ()=>{
         loadFavorites()
 
@@ -63,9 +53,29 @@ const TeacherList:React.FC = () => {
             }
         })
 
-        setTeachers(response.data)
+        setFIlteredTeachers(response.data)
         setIsFilterVisible(false)
     },[subject, week_day, time])
+
+    useEffect(()=>{
+        api.get('/classes').then(response => {
+            const res = response.data.map((teacher: Teacher) => {
+                return {
+                    ...teacher,
+                    schedule: teacher.schedule.map(scheduleItem => {
+                        return {
+                            ...scheduleItem,
+                            from: scheduleItem.from/60,
+                            to: scheduleItem.to/60
+                        }
+                    })
+                }
+            })
+
+            setTeachers(res)
+            setFIlteredTeachers(res)
+        })
+    },[])
 
     return(
         <S.Container>
@@ -126,7 +136,7 @@ const TeacherList:React.FC = () => {
                     </S.NothingFound>
                 )}
 
-                {teachers.map((teacher: Teacher) => (
+                {filteredTeachers.map((teacher: Teacher) => (
                     <TeacherItem 
                         key={teacher.id} 
                         teacher={teacher}

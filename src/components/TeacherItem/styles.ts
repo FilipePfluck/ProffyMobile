@@ -65,6 +65,36 @@ export const PriceValue = styled.Text`
     color: #916BEA;
 `
 
+export const Schedule = styled.View`
+    margin: 8px 0;
+    width: 100%;
+`
+
+export const ScheduleLabel = styled.View`
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-between;
+    margin: 8px 0;
+`
+
+export const ScheduleLabelText = styled.Text`
+    color: #9C98A6;
+    font-size: 16px;
+`
+
+export const ScheduleItem = styled.View`
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-between;
+    margin: 8px 0;
+`
+
+export const ScheduleItemText = styled.Text`
+    color: #916BEA;
+    font-size: 18px;
+    margin-bottom: 8px;
+`
+
 export const ButtonsContainer = styled.View`
     flex-direction: row;
     margin-top:  16px;

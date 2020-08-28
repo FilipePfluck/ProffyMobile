@@ -1,27 +1,20 @@
 import React, {useState, useEffect} from 'react'
-import { useFocusEffect } from "@react-navigation/native"
+import { useIsFocused } from "@react-navigation/native"
 
 import Header from '../../components/header'
 import TeacherItem from '../../components/TeacherItem'
 
 import AsyncStorage from '@react-native-community/async-storage'
 
+import { ScheduleItem, Teacher } from '../../interfaces'
+
 import api from '../../services/api'
 
 import * as S from './styles'
 
-interface Teacher{
-    avatar: string
-    bio: string
-    cost: number
-    id: number
-    name: string
-    subject: string
-    user_id?: number
-    whatsapp: string
-}
-
 const Favorites:React.FC = () => {
+    const isFocused = useIsFocused()
+
     const [favorites, setFavorites] = useState([])
 
     function loadFavorites() {
@@ -34,13 +27,9 @@ const Favorites:React.FC = () => {
         })
     }
 
-    useFocusEffect(() => {
-        loadFavorites()
-    })
-
     useEffect(()=>{
         loadFavorites()
-    },[])
+    },[isFocused])
 
     return(
         <S.Container>

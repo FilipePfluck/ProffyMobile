@@ -5,22 +5,13 @@ import AsyncStorage from '@react-native-community/async-storage'
 
 import api from '../../services/api'
 
+import { Teacher, ScheduleItem } from '../../interfaces'
+
 import heartOutline from '../../assets/images/icons/heart-outline.png'
 import unfavorite from '../../assets/images/icons/unfavorite.png'
 import whatsapp from '../../assets/images/icons/whatsapp.png'
 
 import * as S from './styles'
-
-interface Teacher{
-    avatar: string
-    bio: string
-    cost: number
-    id: number
-    name: string
-    subject: string
-    user_id?: number
-    whatsapp: string
-}
 
 interface TeacherItemProps{
     teacher: Teacher
@@ -28,6 +19,16 @@ interface TeacherItemProps{
 }
 
 const TeacherItem: React.FC<TeacherItemProps> = ({teacher, favorited}) => {
+    const week_days = [
+        'domingo',
+        'segunda-feira',
+        'terça-feira',
+        'quarta-feira',
+        'quinta-feira',
+        'sexta-feira',
+        'sábado'
+    ]
+
     const handleWhatsapp = useCallback(()=>{
         api.post('/connections', {
             user_id: teacher.id
@@ -61,6 +62,8 @@ const TeacherItem: React.FC<TeacherItemProps> = ({teacher, favorited}) => {
         await AsyncStorage.setItem("favorites", JSON.stringify(favoritesArray));
     }
 
+    console.log(teacher)
+
     return(
         <S.Container>
             <S.Profile>
@@ -71,6 +74,23 @@ const TeacherItem: React.FC<TeacherItemProps> = ({teacher, favorited}) => {
                 </S.ProfileInfo>
             </S.Profile>
             <S.Bio>{teacher.bio}</S.Bio>
+            <S.Schedule>
+                <S.ScheduleLabel>
+                    <S.ScheduleLabelText>Dia</S.ScheduleLabelText>
+                    <S.ScheduleLabelText>Horário</S.ScheduleLabelText>
+                </S.ScheduleLabel>
+
+                {teacher.schedule.map(scheduleItem=>(
+                    <S.ScheduleItem key={scheduleItem.id}>
+                        <S.ScheduleItemText>
+                            {week_days[scheduleItem.week_day]}
+                        </S.ScheduleItemText>
+                        <S.ScheduleItemText>
+                            {scheduleItem.from} h - {scheduleItem.to} h
+                        </S.ScheduleItemText>
+                    </S.ScheduleItem>
+                ))}
+            </S.Schedule>
             <S.Footer>
                 <S.Price>
                     Preço/hora: {'   '}
