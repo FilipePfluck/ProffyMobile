@@ -1,5 +1,6 @@
 import styled from 'styled-components/native'
 import { RectButton } from 'react-native-gesture-handler'
+import {Picker} from '@react-native-community/picker'
 
 export const Container = styled.View`
     flex: 1;
@@ -19,6 +20,16 @@ export const Label = styled.Text`
 `
 
 export const Input = styled.TextInput`
+    height: 54px;
+    background-color: #fff;
+    border-radius: 8px;
+    justify-content: center;
+    padding: 0 16px;
+    margin-top: 4px;
+    margin-bottom: 8px;
+`
+
+export const Select = styled(Picker)` 
     height: 54px;
     background-color: #fff;
     border-radius: 8px;

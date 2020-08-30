@@ -1,7 +1,9 @@
 import React, { useState, useCallback, useEffect } from 'react'
-import { Linking } from 'react-native'
+import { FlatList } from 'react-native'
 import { BorderlessButton } from 'react-native-gesture-handler'
 import { useIsFocused } from "@react-navigation/native"
+import RNPickerSelect from 'react-native-picker-select'
+import {Picker} from '@react-native-community/picker'
 
 import AsyncStorage from '@react-native-community/async-storage'
 
@@ -20,8 +22,12 @@ const TeacherList:React.FC = () => {
     const [isFilterVisible, setIsFilterVisible] = useState(false)
 
     const [favorites, setFavorites] = useState<number[]>([])
-    const [teachers, setTeachers] = useState([])
-    const [filteredTeachers, setFIlteredTeachers] = useState([])
+
+    const [teachers, setTeachers] = useState<Teacher[]>([])
+    const [filteredTeachers, setFIlteredTeachers] = useState<Teacher[]>([])
+    const [orderedFilteredTeachers, setOrderedFilteredTeachers] = useState<Teacher[]>([])
+
+    const [page, setPage] = useState(1)
 
     const [subject, setSubject] = useState('')
     const [week_day, setWeekDay] = useState('')
@@ -45,19 +51,50 @@ const TeacherList:React.FC = () => {
     const handleFiltersSubmit = useCallback(async ()=>{
         loadFavorites()
 
-        const response = await api.get('/classes', {
-            params:{
-                subject, 
-                week_day, 
-                time
-            }
-        })
+        let filteredArray = teachers
 
-        setFIlteredTeachers(response.data)
+        if(subject){
+            filteredArray = filteredArray.filter(teacher => {
+                return teacher.subject === subject
+            })
+        }
+
+        if(week_day){
+            filteredArray = filteredArray.filter(teacher => {
+                return teacher.schedule.some(scheduleItem => {
+                    return scheduleItem.week_day === Number(week_day)
+                })
+            })
+        }
+
+        if(time){
+            filteredArray = filteredArray.filter(teacher => {
+                return teacher.schedule.some(scheduleItem => {
+                    if(week_day){
+                        return (
+                            scheduleItem.week_day === Number(week_day)
+                            && scheduleItem.from <= Number(time)
+                            && scheduleItem.to > Number(time)
+                        )
+                    }else{
+                        return (
+                            scheduleItem.from <= Number(time)
+                            && scheduleItem.to > Number(time)
+                        )
+                    }
+                })
+            })
+        }
+
+        setFIlteredTeachers(filteredArray)
         setIsFilterVisible(false)
+        setPage(1)
+
     },[subject, week_day, time])
 
     useEffect(()=>{
+        loadFavorites()
+
         api.get('/classes').then(response => {
             const res = response.data.map((teacher: Teacher) => {
                 return {
@@ -74,8 +111,17 @@ const TeacherList:React.FC = () => {
 
             setTeachers(res)
             setFIlteredTeachers(res)
+            setOrderedFilteredTeachers(res.slice(0, 4))
         })
+
     },[])
+
+    useEffect(()=>{
+        setOrderedFilteredTeachers(
+            filteredTeachers.slice(0, page * 5)
+        )
+
+    },[page, filteredTeachers])
 
     return(
         <S.Container>
@@ -98,7 +144,7 @@ const TeacherList:React.FC = () => {
 
                         <S.InputGroup>
                             <S.InputBlock>
-                                <S.Label>Dia da semana</S.Label>
+                                <S.Label>Dia da Semana</S.Label>
                                 <S.Input 
                                     placeholder="Qual dia?"
                                     value={week_day}
@@ -123,28 +169,32 @@ const TeacherList:React.FC = () => {
                     </S.SearchForm>
                 )}
             </Header>
+            
+            {!!!orderedFilteredTeachers[0] && (
+                <S.NothingFound>
+                    Desculpe, não foi encontrado nenhum professor. 
+                    Tente alterar os filtros
+                </S.NothingFound>
+            )}
 
-            <S.TeacherList
-                contentContainerStyle={{
-                    paddingBottom: 16
-                }}
-            >
-                {!!!teachers[0] && (
-                    <S.NothingFound>
-                        Desculpe, não foi encontrado nenhum professor. 
-                        Tente alterar os filtros
-                    </S.NothingFound>
-                )}
-
-                {filteredTeachers.map((teacher: Teacher) => (
+            <FlatList
+                style={{marginTop: -20}}
+                data={orderedFilteredTeachers}
+                keyExtractor={teacher => String(teacher.id)}
+                showsVerticalScrollIndicator={false}
+                onEndReached={()=>{setPage(page+1)}}
+                onEndReachedThreshold={0.2}
+                renderItem={({ item: teacher})=>(
                     <TeacherItem 
-                        key={teacher.id} 
                         teacher={teacher}
                         favorited={favorites.includes(teacher.id)}    
                     />
-                ))}
+                )} 
+            >
 
-            </S.TeacherList>
+            </FlatList>
+
+            
         </S.Container>
     )
 }
