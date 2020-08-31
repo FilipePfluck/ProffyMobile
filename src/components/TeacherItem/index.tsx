@@ -62,8 +62,6 @@ const TeacherItem: React.FC<TeacherItemProps> = ({teacher, favorited}) => {
         await AsyncStorage.setItem("favorites", JSON.stringify(favoritesArray));
     }
 
-    console.log(teacher)
-
     return(
         <S.Container>
             <S.Profile>

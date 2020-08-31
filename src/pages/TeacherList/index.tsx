@@ -88,9 +88,18 @@ const TeacherList:React.FC = () => {
 
         setFIlteredTeachers(filteredArray)
         setIsFilterVisible(false)
+        setOrderedFilteredTeachers(filteredArray.slice(0, 4))
         setPage(1)
 
     },[subject, week_day, time])
+
+    const loadMoreTeachers = useCallback(()=>{
+        setOrderedFilteredTeachers(
+            filteredTeachers.slice(0, page*5)
+        )
+
+        setPage(page + 1)
+    },[page, orderedFilteredTeachers, filteredTeachers])
 
     useEffect(()=>{
         loadFavorites()
@@ -115,13 +124,6 @@ const TeacherList:React.FC = () => {
         })
 
     },[])
-
-    useEffect(()=>{
-        setOrderedFilteredTeachers(
-            filteredTeachers.slice(0, page * 5)
-        )
-
-    },[page, filteredTeachers])
 
     return(
         <S.Container>
@@ -182,7 +184,7 @@ const TeacherList:React.FC = () => {
                 data={orderedFilteredTeachers}
                 keyExtractor={teacher => String(teacher.id)}
                 showsVerticalScrollIndicator={false}
-                onEndReached={()=>{setPage(page+1)}}
+                onEndReached={loadMoreTeachers}
                 onEndReachedThreshold={0.2}
                 renderItem={({ item: teacher})=>(
                     <TeacherItem 
