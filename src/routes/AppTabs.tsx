@@ -1,10 +1,11 @@
 import React from 'react'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
+import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs'
 
 import TeacherList from '../pages/TeacherList'
 import Favorites from '../pages/Favorites'
 
-const { Navigator, Screen } = createBottomTabNavigator()
+const { Navigator, Screen } = createMaterialTopTabNavigator()
 
 function StudyTabs(){
     return(
@@ -34,9 +35,16 @@ function StudyTabs(){
                     fontWeight: 'bold',
                     marginLeft: 16,
                 },
+                indicatorStyle: {
+                    backgroundColor: '#8257E5'
+                },
                 activeTintColor: "#FFF",
-                inactiveTintColor: "#999591"
+                inactiveTintColor: "#999591",
             }}
+
+            swipeEnabled
+            tabBarPosition='bottom'
+
         >
             <Screen 
                 name="TeacherList" 

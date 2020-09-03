@@ -24,8 +24,6 @@ const TeacherList:React.FC = () => {
     const [favorites, setFavorites] = useState<number[]>([])
 
     const [teachers, setTeachers] = useState<Teacher[]>([])
-    const [filteredTeachers, setFIlteredTeachers] = useState<Teacher[]>([])
-    const [orderedFilteredTeachers, setOrderedFilteredTeachers] = useState<Teacher[]>([])
 
     const [page, setPage] = useState(1)
 
@@ -51,60 +49,16 @@ const TeacherList:React.FC = () => {
     const handleFiltersSubmit = useCallback(async ()=>{
         loadFavorites()
 
-        let filteredArray = teachers
-
-        if(subject){
-            filteredArray = filteredArray.filter(teacher => {
-                return teacher.subject === subject
-            })
-        }
-
-        if(week_day){
-            filteredArray = filteredArray.filter(teacher => {
-                return teacher.schedule.some(scheduleItem => {
-                    return scheduleItem.week_day === Number(week_day)
-                })
-            })
-        }
-
-        if(time){
-            filteredArray = filteredArray.filter(teacher => {
-                return teacher.schedule.some(scheduleItem => {
-                    if(week_day){
-                        return (
-                            scheduleItem.week_day === Number(week_day)
-                            && scheduleItem.from <= Number(time)
-                            && scheduleItem.to > Number(time)
-                        )
-                    }else{
-                        return (
-                            scheduleItem.from <= Number(time)
-                            && scheduleItem.to > Number(time)
-                        )
-                    }
-                })
-            })
-        }
-
-        setFIlteredTeachers(filteredArray)
-        setIsFilterVisible(false)
-        setOrderedFilteredTeachers(filteredArray.slice(0, 4))
         setPage(1)
 
-    },[subject, week_day, time])
-
-    const loadMoreTeachers = useCallback(()=>{
-        setOrderedFilteredTeachers(
-            filteredTeachers.slice(0, page*5)
-        )
-
-        setPage(page + 1)
-    },[page, orderedFilteredTeachers, filteredTeachers])
-
-    useEffect(()=>{
-        loadFavorites()
-
-        api.get('/classes').then(response => {
+        api.get('/classes', {
+            params: {
+                page: 1,
+                time,
+                week_day,
+                subject
+            }
+        }).then(response => {
             const res = response.data.map((teacher: Teacher) => {
                 return {
                     ...teacher,
@@ -119,8 +73,61 @@ const TeacherList:React.FC = () => {
             })
 
             setTeachers(res)
-            setFIlteredTeachers(res)
-            setOrderedFilteredTeachers(res.slice(0, 4))
+        })
+
+        setIsFilterVisible(false)
+
+    },[subject, week_day, time])
+
+    const loadMoreTeachers = useCallback(()=>{
+        api.get('/classes', {
+            params: {
+                page: page + 1,
+                subject,
+                week_day,
+                time
+            }
+        }).then(response => {
+            const res = response.data.map((teacher: Teacher) => {
+                return {
+                    ...teacher,
+                    schedule: teacher.schedule.map(scheduleItem => {
+                        return {
+                            ...scheduleItem,
+                            from: scheduleItem.from/60,
+                            to: scheduleItem.to/60
+                        }
+                    })
+                }
+            })
+
+            setTeachers([...teachers, ...res])
+            setPage(page + 1)
+        })
+    },[page, subject, week_day, time])
+
+    useEffect(()=>{
+        loadFavorites()
+
+        api.get('/classes', {
+            params: {
+                page: 1
+            }
+        }).then(response => {
+            const res = response.data.map((teacher: Teacher) => {
+                return {
+                    ...teacher,
+                    schedule: teacher.schedule.map(scheduleItem => {
+                        return {
+                            ...scheduleItem,
+                            from: scheduleItem.from/60,
+                            to: scheduleItem.to/60
+                        }
+                    })
+                }
+            })
+
+            setTeachers(res)
         })
 
     },[])
@@ -172,7 +179,7 @@ const TeacherList:React.FC = () => {
                 )}
             </Header>
             
-            {!!!orderedFilteredTeachers[0] && (
+            {!teachers[0] && (
                 <S.NothingFound>
                     Desculpe, não foi encontrado nenhum professor. 
                     Tente alterar os filtros
@@ -181,7 +188,7 @@ const TeacherList:React.FC = () => {
 
             <FlatList
                 style={{marginTop: -20}}
-                data={orderedFilteredTeachers}
+                data={teachers}
                 keyExtractor={teacher => String(teacher.id)}
                 showsVerticalScrollIndicator={false}
                 onEndReached={loadMoreTeachers}

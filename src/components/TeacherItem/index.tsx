@@ -77,7 +77,7 @@ const TeacherItem: React.FC<TeacherItemProps> = ({teacher, favorited}) => {
                     <S.ScheduleLabelText>Dia</S.ScheduleLabelText>
                     <S.ScheduleLabelText>Horário</S.ScheduleLabelText>
                 </S.ScheduleLabel>
-
+                
                 {teacher.schedule.map(scheduleItem=>(
                     <S.ScheduleItem key={scheduleItem.id}>
                         <S.ScheduleItemText>
