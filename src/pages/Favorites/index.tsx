@@ -3,6 +3,7 @@ import { useIsFocused } from "@react-navigation/native"
 
 import Header from '../../components/header'
 import TeacherItem from '../../components/TeacherItem'
+import ShimmerTeacher from '../../components/ShimmerTeacher'
 
 import AsyncStorage from '@react-native-community/async-storage'
 
@@ -14,6 +15,8 @@ import * as S from './styles'
 
 const Favorites:React.FC = () => {
     const isFocused = useIsFocused()
+
+    const [isLoading, setIsLoading] = useState(true)
 
     const [favorites, setFavorites] = useState([])
 
@@ -34,20 +37,31 @@ const Favorites:React.FC = () => {
     return(
         <S.Container>
             <Header title="Meus proffys favoritos"/>
-            <S.TeacherList
-                contentContainerStyle={{
-                    paddingBottom: 16
-                }}
-            >
-                {favorites.map((teacher: Teacher) => (
-                    <TeacherItem 
-                        key={teacher.id}
-                        teacher={teacher}
-                        favorited
-                    />
-                ))}
 
-            </S.TeacherList>
+            {isLoading && (
+                <S.Shimmer>
+                    <ShimmerTeacher/>
+                    <ShimmerTeacher/>
+                </S.Shimmer>
+            )}
+            
+            {!isLoading && (
+                <S.TeacherList
+                    contentContainerStyle={{
+                        paddingBottom: 16
+                    }}
+                >
+                    {favorites.map((teacher: Teacher) => (
+                        <TeacherItem 
+                            key={teacher.id}
+                            teacher={teacher}
+                            favorited
+                        />
+                    ))}
+
+                </S.TeacherList>
+            )}
+
         </S.Container>
     )
 }

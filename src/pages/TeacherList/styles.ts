@@ -29,6 +29,13 @@ export const Input = styled.TextInput`
     margin-bottom: 8px;
 `
 
+export const SelectContainer = styled.View`
+margin-top: 4px;
+    border-radius: 8px;
+    background-color: #fff;
+    margin-bottom: 4px;
+`
+
 export const Select = styled(Picker)` 
     height: 54px;
     background-color: #fff;
@@ -79,4 +86,8 @@ export const NothingFound = styled.Text`
     font-size: 16px;
     margin-top: 32px;
     padding: 0 24px;
+`
+
+export const Shimmer = styled.ScrollView`
+    margin-top: -20px;
 `

@@ -8,3 +8,7 @@ export const Container = styled.View`
 export const TeacherList = styled.ScrollView`
     margin-top: -20px;
 `
+
+export const Shimmer = styled.ScrollView`
+    margin-top: -20px;
+`
